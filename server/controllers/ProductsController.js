@@ -56,6 +56,18 @@ module.exports = {
             })
         }
     },
+    
+    async showProduct (req, res) {
+        try {
+            const product = await Product.findByPk(req.params.productId)
+            res.send(product)
+        }
+        catch (err) {
+            res.status(500).send({
+                error: 'An Error has occured'
+            })
+        }
+    },
 
     async deleteProduct (req, res) {
         try {

@@ -15,5 +15,5 @@ module.exports = (app) => {
     app.put('/products/:productId',  ProductsController.putProduct)
     app.get('/products',  ProductsController.getProducts)
     app.delete('/products/:productId', ProductsController.deleteProduct)
-
+    app.get('/products/:productId',  ProductsController.showProduct)
 }
