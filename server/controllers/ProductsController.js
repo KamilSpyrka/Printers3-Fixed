@@ -74,7 +74,7 @@ module.exports = {
             const {productId} = req.params
             const product = await Product.findByPk(productId)
             if(!product) {
-                return res.status(403).send({
+                return res.status(204).send({
                     error: productId
                 })
             }
