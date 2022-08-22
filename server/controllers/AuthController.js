@@ -14,6 +14,7 @@ module.exports = {
     try {
       const user = await User.create(req.body)
       const userJson = user.toJSON()
+      delete userJson.password
       res.send({
         user: userJson,
         token: jwtSignUser(userJson)
@@ -36,7 +37,7 @@ module.exports = {
       })
       
       if (!user) {
-        return res.status(403).send({
+        return res.status(401).send({
           error: 'The login information was incorrect'
         })
       }
@@ -44,12 +45,13 @@ module.exports = {
       const isPasswordValid = await user.comparePassword(password)
       
       if (!isPasswordValid) {
-        return res.status(403).send({
+        return res.status(401).send({
           error: 'The login information was incorrect'
         })
       }
       
       const userJson = user.toJSON()
+      delete userJson.password
       res.send({
         user: userJson,
         token: jwtSignUser(userJson)
