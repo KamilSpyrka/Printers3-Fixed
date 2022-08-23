@@ -4,10 +4,13 @@ const cors = require('cors')
 const {sequelize} = require('./models')
 const config = require('./config/config')
 const adminRole = require('./controllers/AdminRole')
+var cookieParser = require('cookie-parser')
+
 //App
 const app = express()
 app.use(bodyParser.json())
 app.use(cors())
+app.use(cookieParser())
 
 //Routes
 require('./routes')(app)

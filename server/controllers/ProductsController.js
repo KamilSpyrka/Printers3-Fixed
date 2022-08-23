@@ -1,4 +1,5 @@
 const {Product} = require('../models')
+const jwt = require('jsonwebtoken')
 
 module.exports = {
     async getProducts (req, res) {
@@ -6,7 +7,7 @@ module.exports = {
             let products = null
             const search = req.query.search
             const { Op } = require('sequelize')
-
+        
             if (search) {
               products = await Product.findAll({
                 where: {
@@ -33,7 +34,9 @@ module.exports = {
 
     async createProduct (req, res) {
         try {
-            const product = await Product.create(req.body)
+            productData = req.body
+            productData.username = req.user.username
+            const product = await Product.create(productData)
             res.send(product)
         }
         catch (err) {
@@ -44,15 +47,24 @@ module.exports = {
     },
 
     async putProduct (req, res) {
-        try {
-            const product = await Product.update(req.body, {
-                where: {id: req.params.productId}
-            })
-            res.send(req.body)
+        productData = req.body
+        if (productData.username == req.user.username || req.user.role=='admin')
+        {
+            try {
+                const product = await Product.update(productData, {
+                    where: {id: req.params.productId}
+                })
+                res.send(productData)
+            }
+            catch (err) {
+                res.status(500).send({
+                    error: 'An Error has occured'
+                })
+            }
         }
-        catch (err) {
-            res.status(500).send({
-                error: 'An Error has occured'
+        else {
+            res.status(401).send({
+                error: 'Unauthorized'
             })
         }
     },
@@ -78,8 +90,17 @@ module.exports = {
                     error: productId
                 })
             }
-            await product.destroy()
-            res.send(product)
+            if(product.username == req.user.username || req.user.role=='admin')
+            {
+                await product.destroy()
+                res.send(product)
+            }
+            else {
+                res.status(401).send({
+                    error: 'Unauthorized'
+                })
+            }
+
         }
         catch (err) {
             res.status(500).send({

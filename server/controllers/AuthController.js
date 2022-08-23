@@ -2,11 +2,19 @@ const {User} = require('../models')
 const jwt = require('jsonwebtoken')
 const config = require('../config/config')
 
+
 function jwtSignUser (user) {
     const ONE_WEEK = 60 * 60 * 24 * 7
     return jwt.sign(user, config.authentication.jwtSecret,{
         expiresIn: ONE_WEEK
     })
+}
+
+let options = {
+  path:"/",
+  sameSite:true,
+  maxAge: 1000 * 60 * 60 * 24, // would expire after 24 hours
+  httpOnly: true, // The cookie only accessible by the web server
 }
 
 module.exports = {
@@ -15,6 +23,8 @@ module.exports = {
       const user = await User.create(req.body)
       const userJson = user.toJSON()
       delete userJson.password
+
+      res.cookie('x-access-token',jwtSignUser(userJson), options)
       res.send({
         user: userJson,
         token: jwtSignUser(userJson)
@@ -52,6 +62,8 @@ module.exports = {
       
       const userJson = user.toJSON()
       delete userJson.password
+
+      res.cookie('x-access-token',jwtSignUser(userJson), options)
       res.send({
         user: userJson,
         token: jwtSignUser(userJson)
@@ -62,5 +74,7 @@ module.exports = {
         error: 'An error has occured trying to log in'
       })
     }
-  }
+  },
+
+
 }
